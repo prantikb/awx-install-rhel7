@@ -93,7 +93,7 @@
       dest: "{{ local_awx_repo_dir }}/installer/"
 
   - name: "Install AWX"
-    shell: "sudo ansible-playbook -i {{ local_awx_repo_dir }}/installer/inventory {{ local_awx_repo_dir }}/installer/install.yml -e @{{ local_awx_repo_dir }}/installer/vars.yml" 
+    shell: "ansible-playbook -i {{ local_awx_repo_dir }}/installer/inventory {{ local_awx_repo_dir }}/installer/install.yml -e @{{ local_awx_repo_dir }}/installer/vars.yml" 
     tags:
       - "install_awx"
 

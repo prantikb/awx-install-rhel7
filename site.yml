@@ -1,0 +1,95 @@
+---
+- hosts: all
+  become: yes
+  vars:
+    local_awx_repo_dir: "~/awx_repo"
+    awx_github_repo_url: "https://github.com/ansible/awx.git"
+    
+  tasks:
+  - name: "Install CentOS 7 repo for docker-ce installation"
+    get_url:
+      url: 'https://download.docker.com/linux/centos/docker-ce.repo' 
+      dest: '/etc/yum.repos.d/' 
+      mode: '0644'
+    tags:
+      - "install_centos7_repo"
+
+  - name: "Update CentOS 7 repo to replace rhel reference with centos url details"
+    ini_file:
+      path: '/etc/yum.repos.d/docker-ce.repo'
+      section: 'docker-ce-stable'
+      option: baseurl
+      value: 'https://download.docker.com/linux/centos/7/x86_64/stable'
+      mode: '0644'
+      backup: yes"
+    tags:
+      - "update_repo_details"
+
+  - name: Install required software
+    package:
+      name: 
+        - git 
+        - bash-completion 
+        - vim 
+        - ansible
+        - docker-ce 
+        - containerd.io 
+        - docker-ce-cli 
+        - python3 
+        - libselinux-python3
+        - "@Development Tools"
+      state: present
+    tags:
+      - "install_software"
+
+  - name: "Update Firewall Rule to allow Masquerading for Public Zone"
+    firewalld:
+      masquerade: "yes"
+      state: enabled
+      permanent: yes
+      zone: public    
+    when: update_firewall is defined and update_firewall
+    tags:
+      - update_firewall_rule
+
+  - name: Restart firewalld service
+    service:
+      name: firewalld
+      state: restarted
+    when: update_firewall is defined and update_firewall
+    tags:
+      - update_firewall_rule
+      - restart_firewall
+
+  - name: "Install Required Python modules (docker, docker-compose)"
+    pip: 
+      name: 
+        - docker
+        - docker-compose
+      executable: pip3
+    tags:
+      - "install_python_modules"
+
+  - name: "Start the Docker Service"
+    service:
+      name: docker
+      state: started
+      enabled: yes
+    tags:
+      - start_docker_service
+
+  - name: "Clone AWX Git Repo"
+    git:
+      repo: "{{ awx_github_repo_url }}"
+      dest: "{{ local_awx_repo_dir }}"
+      force: yes
+    tags:
+      - clone_awx_repository
+      - clone_awx_repo
+
+  - name: "Install AWX"
+    shell: "ansible-playbook -i {{ local_awx_repo_dir }}/installer/inventory {{ local_awx_repo_dir }}/installer/install.yml -e @./vars.yml" 
+    tags:
+      - "install_awx"
+
+  

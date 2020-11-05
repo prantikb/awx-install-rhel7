@@ -5,9 +5,13 @@
 
 ## Steps:
 1. clone the repository to a local directory
+
         git clone https://github.com/prantikb/awx-install-rhel7.git
+        
 2. Change directory to repository location
+
         cd awx-install-rhel7
+        
 2. Update vars.yml as per local AWX installation requirements
 3. Run the following command to start AWX installation using the playbook
 

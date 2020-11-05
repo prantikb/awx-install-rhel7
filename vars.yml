@@ -1,6 +1,6 @@
 ---
 # Local AWX repository location
-local_awx_repo_dir: "~/awx_repo"
+local_awx_repo_dir: "/tmp/awx_repo"
 
 # AWX Inventory variables (For Installation)
 postgres_data_dir: "~/.awx/pgdocker"

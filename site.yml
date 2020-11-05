@@ -2,7 +2,7 @@
 - hosts: all
   become: yes
   vars:
-    local_awx_repo_dir: "~/awx_repo"
+    local_awx_repo_dir: "/tmp/awx_repo"
     awx_github_repo_url: "https://github.com/ansible/awx.git"
     
   tasks:
@@ -88,7 +88,7 @@
       - clone_awx_repo
 
   - name: "Install AWX"
-    shell: "ansible-playbook -i {{ local_awx_repo_dir }}/installer/inventory {{ local_awx_repo_dir }}/installer/install.yml -e @./vars.yml" 
+    shell: "sudo ansible-playbook -i {{ local_awx_repo_dir }}/installer/inventory {{ local_awx_repo_dir }}/installer/install.yml -e @./vars.yml" 
     tags:
       - "install_awx"
 

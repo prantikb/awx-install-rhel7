@@ -1,9 +1,7 @@
 # Install AWX on RHEL 7
 
 ## Pre-Requisites:
-1. Enable Ansible Repository for ansible installation on AWX host
-
-        sudo subscription-manager repos --enable rhel-7-server-ansible-2.9-rpms
+1. Enable RedHat Repository for ansible installation on AWX host (if needed)
 
 ## Steps:
 1. clone the repository to a local directory

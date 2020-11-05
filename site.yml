@@ -21,7 +21,7 @@
       option: baseurl
       value: 'https://download.docker.com/linux/centos/7/x86_64/stable'
       mode: '0644'
-      backup: yes"
+      backup: yes
     tags:
       - "update_repo_details"
 

@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  #become: yes
+  become: yes
   vars:
     local_awx_repo_dir: "/tmp/awx_repo"
     awx_github_repo_url: "https://github.com/ansible/awx.git"
@@ -11,7 +11,6 @@
       url: 'https://download.docker.com/linux/centos/docker-ce.repo' 
       dest: '/etc/yum.repos.d/' 
       mode: '0644'
-    become: yes
     tags:
       - "install_centos7_repo"
 
@@ -23,7 +22,6 @@
       value: 'https://download.docker.com/linux/centos/7/x86_64/stable'
       mode: '0644'
       backup: yes
-    become: yes
     tags:
       - "update_repo_details"
 
@@ -41,7 +39,6 @@
         - libselinux-python3
         - "@Development Tools"
       state: present
-    become: yes
     tags:
       - "install_software"
 
@@ -52,8 +49,6 @@
       permanent: yes
       zone: public    
     when: update_firewall is defined and update_firewall
-    become: yes
-    register: firewall_update_result
     tags:
       - update_firewall_rule
 
@@ -61,8 +56,7 @@
     service:
       name: firewalld
       state: restarted
-    when: update_firewall is defined and update_firewall and firewall_update_result.changed
-    become: yes
+    when: update_firewall is defined and update_firewall
     tags:
       - update_firewall_rule
       - restart_firewall
@@ -73,31 +67,14 @@
         - docker
         - docker-compose
       executable: pip3
-    become: yes
     tags:
       - "install_python_modules"
-
-  - name: Add AWX OS User to Docker group 
-    user:
-      name: "{{ awx_userid }}"
-      append: yes
-      groups: docker
-    become: yes
-    tags:
-      - update_os_user
-
-  - name: "Reboot the server after modifying user ID"
-    reboot:
-    become: yes
-    tags:
-      - "reboot_server"
 
   - name: "Start the Docker Service"
     service:
       name: docker
       state: started
       enabled: yes
-    become: yes
     tags:
       - start_docker_service
 
@@ -105,12 +82,11 @@
     git:
       repo: "{{ awx_github_repo_url }}"
       dest: "{{ local_awx_repo_dir }}"
-      version: "{{ awx_release | default(omit) }}"
       force: yes
     tags:
       - clone_awx_repository
       - clone_awx_repo
-    #when: false
+    when: false
 
   - name: "Create destination AWX Repo Directory"
     file:
@@ -119,7 +95,6 @@
     tags: 
       - copy_awx_repository
       - copy_awx_repo
-    when: false
 
   - name: Copy AWX repo to remote server
     unarchive:
@@ -130,12 +105,11 @@
     tags: 
       - copy_awx_repository
       - copy_awx_repo
-    when: false
 
   - name: "Copy vars file to remote directory"
     copy:
-      src: "{{ var_file_name | default('./vars.yml') }}"
-      dest: "{{ local_awx_repo_dir }}/installer/vars.yml"
+      src: ./vars.yml
+      dest: "{{ local_awx_repo_dir }}/installer/"
 
   - name: "Install AWX"
     shell: "ansible-playbook -i {{ local_awx_repo_dir }}/installer/inventory {{ local_awx_repo_dir }}/installer/install.yml -e @{{ local_awx_repo_dir }}/installer/vars.yml" 
@@ -144,6 +118,5 @@
 
   - name: "Reboot the server"
     reboot:
-    become: yes
     tags:
       - "reboot_server"

@@ -2,6 +2,13 @@
 # Local AWX repository location
 local_awx_repo_dir: "/tmp/awx_repo"
 
+# AWX GitHub Release to download (use this to download a stable version instead of devel branch)
+# Comment if latest developer version is needed
+awx_release: "15.0.1"
+
+# User ID running AWX on AWX Host
+awx_userid: "awxuser"
+
 # AWX Inventory variables (For Installation)
 postgres_data_dir: "~/.awx/pgdocker"
 docker_compose_dir: "~/.awx/awxcompose"
@@ -14,3 +21,4 @@ project_data_dir: "/var/lib/awx/projects"
 
 # Set to true if firewalld is running on AWX host (sets masquerading to yes)
 update_firewall: true
+var_file_name: "./vars_modified.yml"
